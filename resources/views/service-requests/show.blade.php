@@ -1,33 +1,24 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between" dir="rtl">
-            <div>
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ $serviceRequest->title }}</h2>
-                <p class="mt-1 text-sm text-gray-500">طلب #{{ $serviceRequest->id }} - {{ $serviceRequest->status }}</p>
-            </div>
-            <div class="flex flex-wrap items-center gap-2">
+        <x-ui.page-header :title="$serviceRequest->title" :subtitle="__('ui.service_requests.details_subtitle', ['id' => $serviceRequest->id])">
+            <x-slot name="actions">
+                <x-ui.badge :status="$serviceRequest->status" />
                 @can('update', $serviceRequest)
-                    <a href="{{ route('service-requests.edit', $serviceRequest) }}" class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50">
-                        تعديل
-                    </a>
+                    <x-ui.button :href="route('service-requests.edit', $serviceRequest)" variant="secondary" size="sm">{{ __('ui.actions.edit') }}</x-ui.button>
                 @endcan
-                <a href="{{ route('service-requests.index') }}" class="inline-flex items-center rounded-md bg-gray-800 px-4 py-2 text-xs font-semibold text-white hover:bg-gray-700">
-                    القائمة
-                </a>
-            </div>
-        </div>
+                <x-ui.button :href="route('service-requests.index')" size="sm">{{ __('ui.actions.back_to_list') }}</x-ui.button>
+            </x-slot>
+        </x-ui.page-header>
     </x-slot>
 
-    <div class="py-8" dir="rtl">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div class="ff-page">
+        <div class="ff-container space-y-6">
             @if (session('status'))
-                <div class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-800">
-                    {{ session('status') }}
-                </div>
+                <div class="ff-alert-success">{{ session('status') }}</div>
             @endif
 
             @if ($errors->any())
-                <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-800">
+                <div class="ff-alert-danger">
                     <ul class="list-disc list-inside space-y-1">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -38,93 +29,93 @@
 
             <div class="grid gap-6 lg:grid-cols-3">
                 <div class="lg:col-span-2 space-y-6">
-                    <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="ff-card p-6">
                         <div class="grid gap-4 md:grid-cols-2">
                             <div>
-                                <div class="text-sm text-gray-500">العميل</div>
-                                <div class="mt-1 font-medium text-gray-900">{{ $serviceRequest->customer?->name }}</div>
+                                <div class="text-sm text-slate-500">{{ __('ui.service_requests.customer') }}</div>
+                                <div class="mt-1 font-medium text-slate-950">{{ $serviceRequest->customer?->name }}</div>
                             </div>
                             <div>
-                                <div class="text-sm text-gray-500">الجهاز</div>
-                                <div class="mt-1 font-medium text-gray-900">{{ $serviceRequest->serviceAsset?->name ?? 'طلب عام' }}</div>
+                                <div class="text-sm text-slate-500">{{ __('ui.service_requests.asset') }}</div>
+                                <div class="mt-1 font-medium text-slate-950">{{ $serviceRequest->serviceAsset?->name ?? __('ui.common.general_request') }}</div>
                                 @if ($assetQrUrl)
-                                    <a href="{{ $assetQrUrl }}" class="mt-1 inline-flex text-sm font-medium text-indigo-700 hover:text-indigo-900">
-                                        فتح صفحة QR للجهاز
+                                    <a href="{{ $assetQrUrl }}" class="mt-1 inline-flex text-sm font-medium text-cyan-700 hover:text-cyan-900">
+                                        {{ __('ui.actions.open_qr') }}
                                     </a>
                                 @endif
                             </div>
                             <div>
-                                <div class="text-sm text-gray-500">الأولوية</div>
-                                <div class="mt-1 font-medium text-gray-900">{{ $serviceRequest->priority }}</div>
+                                <div class="text-sm text-slate-500">{{ __('ui.service_requests.priority') }}</div>
+                                <div class="mt-1"><x-ui.badge :status="$serviceRequest->priority" /></div>
                             </div>
                             <div>
-                                <div class="text-sm text-gray-500">التاريخ المفضل</div>
-                                <div class="mt-1 font-medium text-gray-900">{{ optional($serviceRequest->preferred_date)->format('Y-m-d') ?? 'غير محدد' }}</div>
+                                <div class="text-sm text-slate-500">{{ __('ui.service_requests.preferred_date') }}</div>
+                                <div class="mt-1 font-medium text-slate-950">{{ optional($serviceRequest->preferred_date)->format('Y-m-d') ?? __('ui.common.not_defined') }}</div>
                             </div>
                         </div>
 
                         <div class="mt-6">
-                            <div class="text-sm text-gray-500">الوصف</div>
-                            <p class="mt-2 text-gray-800 whitespace-pre-line">{{ $serviceRequest->description ?: 'لا يوجد وصف.' }}</p>
+                            <div class="text-sm text-slate-500">{{ __('ui.service_requests.description') }}</div>
+                            <p class="mt-2 text-slate-800 whitespace-pre-line">{{ $serviceRequest->description ?: __('ui.common.no_description') }}</p>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-lg shadow-sm">
-                        <div class="px-6 py-4 border-b border-gray-100 font-semibold text-gray-900">الزيارات</div>
-                        <div class="divide-y divide-gray-100">
+                    <div class="ff-card overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-100 font-semibold text-slate-950">{{ __('ui.service_requests.visits') }}</div>
+                        <div class="divide-y divide-slate-100">
                             @forelse ($serviceRequest->visits as $visit)
                                 <div class="px-6 py-4">
                                     <div class="flex items-center justify-between gap-4">
-                                        <div class="font-medium text-gray-900">{{ $visit->technician?->name }}</div>
-                                        <span class="text-sm text-gray-600">{{ $visit->visit_status }}</span>
+                                        <div class="font-medium text-slate-950">{{ $visit->technician?->name }}</div>
+                                        <x-ui.badge :status="$visit->visit_status" />
                                     </div>
-                                    <div class="mt-1 text-sm text-gray-500">
+                                    <div class="mt-1 text-sm text-slate-500">
                                         {{ optional($visit->scheduled_at)->format('Y-m-d H:i') }} - {{ $visit->location_address }}
                                     </div>
                                     @if ($visit->technician_notes)
-                                        <div class="mt-2 text-sm text-gray-700">{{ $visit->technician_notes }}</div>
+                                        <div class="mt-2 text-sm text-slate-700">{{ $visit->technician_notes }}</div>
                                     @endif
                                 </div>
                             @empty
-                                <div class="px-6 py-10 text-center text-gray-500">لم يتم تعيين زيارة بعد.</div>
+                                <div class="p-6">
+                                    <x-ui.empty-state :title="__('ui.service_requests.no_visits')" />
+                                </div>
                             @endforelse
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-lg shadow-sm">
-                        <div class="px-6 py-4 border-b border-gray-100 font-semibold text-gray-900">قطع الغيار المستخدمة</div>
-                        <div class="divide-y divide-gray-100">
+                    <div class="ff-card overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-100 font-semibold text-slate-950">{{ __('ui.service_requests.used_parts') }}</div>
+                        <div class="divide-y divide-slate-100">
                             @forelse ($serviceRequest->partsUsed as $partUsed)
                                 <div class="px-6 py-4 flex items-center justify-between gap-4">
                                     <div>
-                                        <div class="font-medium text-gray-900">{{ $partUsed->part?->name }}</div>
-                                        <div class="text-sm text-gray-500">{{ $partUsed->quantity }} × {{ number_format((float) $partUsed->unit_price, 2) }}</div>
+                                        <div class="font-medium text-slate-950">{{ $partUsed->part?->name }}</div>
+                                        <div class="text-sm text-slate-500">{{ $partUsed->quantity }} × {{ number_format((float) $partUsed->unit_price, 2) }}</div>
                                     </div>
-                                    <div class="text-sm font-medium text-gray-900">{{ number_format($partUsed->quantity * (float) $partUsed->unit_price, 2) }}</div>
+                                    <div class="text-sm font-medium text-slate-950">{{ number_format($partUsed->quantity * (float) $partUsed->unit_price, 2) }}</div>
                                 </div>
                             @empty
-                                <div class="px-6 py-10 text-center text-gray-500">لا توجد قطع مستخدمة.</div>
+                                <div class="p-6">
+                                    <x-ui.empty-state :title="__('ui.service_requests.no_parts')" />
+                                </div>
                             @endforelse
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-lg shadow-sm">
-                        <div class="flex flex-col gap-3 px-6 py-4 border-b border-gray-100 sm:flex-row sm:items-center sm:justify-between">
-                            <div class="font-semibold text-gray-900">تقرير الصيانة</div>
+                    <div class="ff-card overflow-hidden">
+                        <div class="flex flex-col gap-3 px-6 py-4 border-b border-slate-100 sm:flex-row sm:items-center sm:justify-between">
+                            <div class="font-semibold text-slate-950">{{ __('ui.reports.title') }}</div>
                             @if ($serviceRequest->report)
                                 <div class="flex flex-wrap gap-2">
                                     @can('generateReportPdf', $serviceRequest)
                                         <form method="POST" action="{{ route('service-requests.report.pdf', $serviceRequest) }}">
                                             @csrf
-                                            <button type="submit" class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700">
-                                                Generate PDF
-                                            </button>
+                                            <x-ui.button type="submit" size="sm">{{ __('ui.actions.generate_pdf') }}</x-ui.button>
                                         </form>
                                     @endcan
                                     @if ($reportPdfUrl)
-                                        <a href="{{ $reportPdfUrl }}" target="_blank" class="inline-flex items-center rounded-md border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50">
-                                            عرض PDF
-                                        </a>
+                                        <x-ui.button :href="$reportPdfUrl" target="_blank" variant="secondary" size="sm">{{ __('ui.actions.view_pdf') }}</x-ui.button>
                                     @endif
                                 </div>
                             @endif
@@ -133,21 +124,21 @@
                         @if ($serviceRequest->report)
                             <div class="p-6 space-y-4">
                                 <div>
-                                    <div class="text-sm text-gray-500">الفني</div>
-                                    <div class="mt-1 font-medium text-gray-900">{{ $serviceRequest->report->technician?->name }}</div>
+                                    <div class="text-sm text-slate-500">{{ __('ui.reports.technician') }}</div>
+                                    <div class="mt-1 font-medium text-slate-950">{{ $serviceRequest->report->technician?->name }}</div>
                                 </div>
                                 <div>
-                                    <div class="text-sm text-gray-500">التشخيص</div>
-                                    <p class="mt-1 text-gray-800 whitespace-pre-line">{{ $serviceRequest->report->diagnosis }}</p>
+                                    <div class="text-sm text-slate-500">{{ __('ui.reports.diagnosis') }}</div>
+                                    <p class="mt-1 text-slate-800 whitespace-pre-line">{{ $serviceRequest->report->diagnosis }}</p>
                                 </div>
                                 <div>
-                                    <div class="text-sm text-gray-500">الحل</div>
-                                    <p class="mt-1 text-gray-800 whitespace-pre-line">{{ $serviceRequest->report->solution }}</p>
+                                    <div class="text-sm text-slate-500">{{ __('ui.reports.solution') }}</div>
+                                    <p class="mt-1 text-slate-800 whitespace-pre-line">{{ $serviceRequest->report->solution }}</p>
                                 </div>
                                 @if ($serviceRequest->report->customer_signature)
                                     <div>
-                                        <div class="text-sm text-gray-500">توقيع العميل</div>
-                                        <div class="mt-1 font-medium text-gray-900">{{ $serviceRequest->report->customer_signature }}</div>
+                                        <div class="text-sm text-slate-500">{{ __('ui.reports.customer_signature') }}</div>
+                                        <div class="mt-1 font-medium text-slate-950">{{ $serviceRequest->report->customer_signature }}</div>
                                     </div>
                                 @endif
                             </div>
@@ -157,8 +148,8 @@
                                     @csrf
                                     @if (! Auth::user()->hasRole('technician'))
                                         <div>
-                                            <label for="technician_id" class="block text-sm font-medium text-gray-700">الفني</label>
-                                            <select id="technician_id" name="technician_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                            <label for="technician_id" class="ff-form-label">{{ __('ui.service_requests.technician') }}</label>
+                                            <select id="technician_id" name="technician_id" class="ff-form-input">
                                                 @foreach ($technicians as $technician)
                                                     <option value="{{ $technician->id }}">{{ $technician->name }}</option>
                                                 @endforeach
@@ -166,164 +157,140 @@
                                         </div>
                                     @endif
                                     <div>
-                                        <label for="diagnosis" class="block text-sm font-medium text-gray-700">التشخيص</label>
-                                        <textarea id="diagnosis" name="diagnosis" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>{{ old('diagnosis') }}</textarea>
+                                        <label for="diagnosis" class="ff-form-label">{{ __('ui.reports.diagnosis') }}</label>
+                                        <textarea id="diagnosis" name="diagnosis" rows="4" class="ff-form-input" required>{{ old('diagnosis') }}</textarea>
                                     </div>
                                     <div>
-                                        <label for="solution" class="block text-sm font-medium text-gray-700">الحل</label>
-                                        <textarea id="solution" name="solution" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>{{ old('solution') }}</textarea>
+                                        <label for="solution" class="ff-form-label">{{ __('ui.reports.solution') }}</label>
+                                        <textarea id="solution" name="solution" rows="4" class="ff-form-input" required>{{ old('solution') }}</textarea>
                                     </div>
                                     <div>
-                                        <label for="customer_signature" class="block text-sm font-medium text-gray-700">توقيع العميل</label>
-                                        <input id="customer_signature" name="customer_signature" type="text" value="{{ old('customer_signature') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <label for="customer_signature" class="ff-form-label">{{ __('ui.reports.customer_signature') }}</label>
+                                        <x-ui.input id="customer_signature" name="customer_signature" :value="old('customer_signature')" />
                                     </div>
-                                    <button type="submit" class="inline-flex items-center rounded-md bg-gray-800 px-4 py-2 text-xs font-semibold text-white hover:bg-gray-700">
-                                        إضافة التقرير
-                                    </button>
+                                    <x-ui.button type="submit" size="sm">{{ __('ui.actions.add_report') }}</x-ui.button>
                                 </form>
                             @else
-                                <div class="px-6 py-10 text-center text-gray-500">لم يتم إضافة تقرير بعد.</div>
+                                <div class="p-6">
+                                    <x-ui.empty-state :title="__('ui.service_requests.no_report')" />
+                                </div>
                             @endcan
                         @endif
                     </div>
                 </div>
 
                 <div class="space-y-6">
-                    <div class="bg-white rounded-lg shadow-sm p-6 space-y-4">
-                        <div class="font-semibold text-gray-900">الفاتورة</div>
+                    <div class="ff-card p-6 space-y-4">
+                        <div class="font-semibold text-slate-950">{{ __('ui.invoices.invoice') }}</div>
                         @if ($serviceRequest->invoice)
                             <dl class="space-y-3 text-sm">
                                 <div class="flex justify-between gap-4">
-                                    <dt class="text-gray-500">رقم الفاتورة</dt>
-                                    <dd class="font-medium text-gray-900">{{ $serviceRequest->invoice->invoice_number }}</dd>
+                                    <dt class="text-slate-500">{{ __('ui.invoices.invoice_number') }}</dt>
+                                    <dd class="font-medium text-slate-950">{{ $serviceRequest->invoice->invoice_number }}</dd>
                                 </div>
                                 <div class="flex justify-between gap-4">
-                                    <dt class="text-gray-500">الإجمالي</dt>
-                                    <dd class="font-medium text-gray-900">{{ number_format((float) $serviceRequest->invoice->total, 2) }}</dd>
+                                    <dt class="text-slate-500">{{ __('ui.invoices.total') }}</dt>
+                                    <dd class="font-medium text-slate-950">{{ number_format((float) $serviceRequest->invoice->total, 2) }}</dd>
                                 </div>
                                 <div class="flex justify-between gap-4">
-                                    <dt class="text-gray-500">الحالة</dt>
-                                    <dd class="font-medium text-gray-900">{{ $serviceRequest->invoice->status }}</dd>
+                                    <dt class="text-slate-500">{{ __('ui.invoices.status') }}</dt>
+                                    <dd><x-ui.badge :status="$serviceRequest->invoice->status" /></dd>
                                 </div>
                             </dl>
-                            <a href="{{ route('invoices.show', $serviceRequest->invoice) }}" class="inline-flex items-center rounded-md border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50">
-                                عرض الفاتورة
-                            </a>
+                            <x-ui.button :href="route('invoices.show', $serviceRequest->invoice)" variant="secondary" size="sm">{{ __('ui.actions.view_invoice') }}</x-ui.button>
                         @else
                             @can('createInvoice', $serviceRequest)
                                 <form method="POST" action="{{ route('service-requests.invoice.store', $serviceRequest) }}" class="space-y-4">
                                     @csrf
                                     <div>
-                                        <label for="service_cost" class="block text-sm font-medium text-gray-700">تكلفة الخدمة</label>
-                                        <input id="service_cost" name="service_cost" type="number" min="0" step="0.01" value="{{ old('service_cost', '0.00') }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <label for="service_cost" class="ff-form-label">{{ __('ui.invoices.service_cost') }}</label>
+                                        <x-ui.input id="service_cost" name="service_cost" type="number" min="0" step="0.01" :value="old('service_cost', '0.00')" required />
                                     </div>
                                     <div>
-                                        <div class="text-sm text-gray-500">تكلفة قطع الغيار</div>
-                                        <div class="mt-1 font-medium text-gray-900">{{ number_format($partsTotal, 2) }}</div>
+                                        <div class="text-sm text-slate-500">{{ __('ui.service_requests.parts_cost') }}</div>
+                                        <div class="mt-1 font-medium text-slate-950">{{ number_format($partsTotal, 2) }}</div>
                                     </div>
                                     <div>
-                                        <label for="tax_rate" class="block text-sm font-medium text-gray-700">الضريبة %</label>
-                                        <input id="tax_rate" name="tax_rate" type="number" min="0" max="100" step="0.01" value="{{ old('tax_rate', '15') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <label for="tax_rate" class="ff-form-label">{{ __('ui.invoices.tax_rate') }}</label>
+                                        <x-ui.input id="tax_rate" name="tax_rate" type="number" min="0" max="100" step="0.01" :value="old('tax_rate', '15')" />
                                     </div>
                                     <div>
-                                        <label for="invoice_status" class="block text-sm font-medium text-gray-700">حالة الفاتورة</label>
-                                        <select id="invoice_status" name="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <label for="invoice_status" class="ff-form-label">{{ __('ui.invoices.invoice_status') }}</label>
+                                        <select id="invoice_status" name="status" class="ff-form-input">
                                             <option value="draft" @selected(old('status', 'draft') === 'draft')>draft</option>
                                             <option value="issued" @selected(old('status') === 'issued')>issued</option>
                                         </select>
                                     </div>
-                                    <button type="submit" class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700">
-                                        Create Invoice
-                                    </button>
+                                    <x-ui.button type="submit" size="sm">{{ __('ui.actions.create_invoice') }}</x-ui.button>
                                 </form>
                             @else
-                                <div class="text-sm text-gray-500">لا توجد فاتورة مرتبطة بهذا الطلب.</div>
+                                <div class="text-sm text-slate-500">{{ __('ui.invoices.no_invoice') }}</div>
                             @endcan
                         @endif
                     </div>
 
                     @can('changeStatus', $serviceRequest)
-                        <form method="POST" action="{{ route('service-requests.change-status', $serviceRequest) }}" class="bg-white rounded-lg shadow-sm p-6 space-y-4">
+                        <form method="POST" action="{{ route('service-requests.change-status', $serviceRequest) }}" class="ff-card p-6 space-y-4">
                             @csrf
                             @method('PATCH')
-                            <div class="font-semibold text-gray-900">تغيير الحالة</div>
+                            <div class="font-semibold text-slate-950">{{ __('ui.service_requests.change_status') }}</div>
                             @if (count($availableStatuses) > 0)
                                 <div>
-                                    <label for="status" class="block text-sm font-medium text-gray-700">الحالة الجديدة</label>
-                                    <select id="status" name="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    <label for="status" class="ff-form-label">{{ __('ui.service_requests.new_status') }}</label>
+                                    <select id="status" name="status" class="ff-form-input">
                                         @foreach ($availableStatuses as $status)
-                                            <option value="{{ $status }}">{{ $status }}</option>
+                                            <option value="{{ $status }}">{{ __('ui.statuses.'.$status) }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div>
-                                    <label for="notes" class="block text-sm font-medium text-gray-700">ملاحظة</label>
-                                    <textarea id="notes" name="notes" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('notes') }}</textarea>
+                                    <label for="notes" class="ff-form-label">{{ __('ui.service_requests.note') }}</label>
+                                    <textarea id="notes" name="notes" rows="3" class="ff-form-input">{{ old('notes') }}</textarea>
                                 </div>
-                                <button type="submit" class="inline-flex items-center rounded-md bg-gray-800 px-4 py-2 text-xs font-semibold text-white hover:bg-gray-700">
-                                    تحديث الحالة
-                                </button>
+                                <x-ui.button type="submit" size="sm">{{ __('ui.service_requests.update_status') }}</x-ui.button>
                             @else
-                                <div class="text-sm text-gray-500">لا توجد انتقالات متاحة من الحالة الحالية.</div>
+                                <div class="text-sm text-slate-500">{{ __('ui.service_requests.no_transitions') }}</div>
                             @endif
                         </form>
                     @endcan
 
                     @can('assignTechnicians', $serviceRequest)
-                        <form method="POST" action="{{ route('service-requests.assign-technician', $serviceRequest) }}" class="bg-white rounded-lg shadow-sm p-6 space-y-4">
+                        <form method="POST" action="{{ route('service-requests.assign-technician', $serviceRequest) }}" class="ff-card p-6 space-y-4">
                             @csrf
-                            <div class="font-semibold text-gray-900">تعيين فني</div>
+                            <div class="font-semibold text-slate-950">{{ __('ui.service_requests.assign_technician') }}</div>
                             <div>
-                                <label for="assign_technician_id" class="block text-sm font-medium text-gray-700">الفني</label>
-                                <select id="assign_technician_id" name="technician_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <label for="assign_technician_id" class="ff-form-label">{{ __('ui.service_requests.technician') }}</label>
+                                <select id="assign_technician_id" name="technician_id" class="ff-form-input">
                                     @foreach ($technicians as $technician)
                                         <option value="{{ $technician->id }}">{{ $technician->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div>
-                                <label for="scheduled_at" class="block text-sm font-medium text-gray-700">موعد الزيارة</label>
-                                <input id="scheduled_at" name="scheduled_at" type="datetime-local" value="{{ old('scheduled_at') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                                <label for="scheduled_at" class="ff-form-label">{{ __('ui.service_requests.scheduled_at') }}</label>
+                                <x-ui.input id="scheduled_at" name="scheduled_at" type="datetime-local" :value="old('scheduled_at')" required />
                             </div>
                             <div>
-                                <label for="location_address" class="block text-sm font-medium text-gray-700">عنوان الزيارة</label>
-                                <textarea id="location_address" name="location_address" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('location_address', $serviceRequest->customer?->address) }}</textarea>
+                                <label for="location_address" class="ff-form-label">{{ __('ui.service_requests.visit_address') }}</label>
+                                <textarea id="location_address" name="location_address" rows="2" class="ff-form-input">{{ old('location_address', $serviceRequest->customer?->address) }}</textarea>
                             </div>
                             <div>
-                                <label for="technician_notes" class="block text-sm font-medium text-gray-700">ملاحظات للفني</label>
-                                <textarea id="technician_notes" name="technician_notes" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('technician_notes') }}</textarea>
+                                <label for="technician_notes" class="ff-form-label">{{ __('ui.service_requests.notes_for_technician') }}</label>
+                                <textarea id="technician_notes" name="technician_notes" rows="3" class="ff-form-input">{{ old('technician_notes') }}</textarea>
                             </div>
-                            <button type="submit" class="inline-flex items-center rounded-md bg-gray-800 px-4 py-2 text-xs font-semibold text-white hover:bg-gray-700">
-                                تعيين
-                            </button>
+                            <x-ui.button type="submit" size="sm">{{ __('ui.actions.assign') }}</x-ui.button>
                         </form>
                     @endcan
 
-                    <div class="bg-white rounded-lg shadow-sm">
-                        <div class="px-6 py-4 border-b border-gray-100 font-semibold text-gray-900">Timeline</div>
-                        <div class="p-6 space-y-5">
-                            @forelse ($timeline as $event)
-                                <div class="relative ps-5 border-s border-gray-200">
-                                    <div class="absolute -start-1.5 top-1 h-3 w-3 rounded-full bg-gray-800"></div>
-                                    <div class="text-sm font-medium text-gray-900">{{ str_replace('_', ' ', $event->action) }}</div>
-                                    <div class="mt-1 text-xs text-gray-500">{{ $event->created_at->format('Y-m-d H:i') }} بواسطة {{ $event->user?->name ?? 'النظام' }}</div>
-                                    @if ($event->new_values)
-                                        <pre class="mt-2 text-xs bg-gray-50 rounded-md p-3 overflow-x-auto">{{ json_encode($event->new_values, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
-                                    @endif
-                                </div>
-                            @empty
-                                <div class="text-sm text-gray-500">لا توجد أحداث بعد.</div>
-                            @endforelse
-                        </div>
-                    </div>
+                    <x-ui.card :title="__('ui.service_requests.timeline')">
+                        <x-ui.status-timeline :items="$timeline" />
+                    </x-ui.card>
 
                     @can('delete', $serviceRequest)
-                        <form method="POST" action="{{ route('service-requests.destroy', $serviceRequest) }}" class="bg-white rounded-lg shadow-sm p-6">
+                        <form method="POST" action="{{ route('service-requests.destroy', $serviceRequest) }}" class="ff-card p-6">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="inline-flex items-center rounded-md bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700">
-                                حذف الطلب
-                            </button>
+                            <x-ui.button type="submit" variant="danger" size="sm">{{ __('ui.service_requests.delete_request') }}</x-ui.button>
                         </form>
                     @endcan
                 </div>

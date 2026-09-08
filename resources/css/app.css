@@ -1,3 +1,163 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    :root {
+        --ff-primary: 14 116 144;
+        --ff-primary-dark: 21 94 117;
+        --ff-surface: 255 255 255;
+        --ff-muted: 248 250 252;
+        --ff-border: 226 232 240;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply bg-slate-50 text-slate-900;
+    }
+}
+
+@layer components {
+    .ff-shell {
+        @apply min-h-screen bg-slate-50;
+    }
+
+    .ff-container {
+        @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+    }
+
+    .ff-page {
+        @apply py-8;
+    }
+
+    .ff-card {
+        @apply rounded-lg border border-slate-200 bg-white shadow-sm;
+    }
+
+    .ff-card-header {
+        @apply border-b border-slate-100 px-5 py-4;
+    }
+
+    .ff-card-body {
+        @apply p-5;
+    }
+
+    .ff-section-title {
+        @apply text-base font-semibold text-slate-950;
+    }
+
+    .ff-section-subtitle {
+        @apply mt-1 text-sm leading-6 text-slate-500;
+    }
+
+    .ff-button {
+        @apply inline-flex items-center justify-center rounded-md border px-4 py-2 text-sm font-semibold transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-cyan-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
+    .ff-button-primary {
+        @apply border-cyan-700 bg-cyan-700 text-white hover:bg-cyan-800;
+    }
+
+    .ff-button-secondary {
+        @apply border-slate-300 bg-white text-slate-700 hover:bg-slate-50;
+    }
+
+    .ff-button-success {
+        @apply border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700;
+    }
+
+    .ff-button-warning {
+        @apply border-amber-500 bg-amber-500 text-white hover:bg-amber-600;
+    }
+
+    .ff-button-danger {
+        @apply border-red-600 bg-red-600 text-white hover:bg-red-700;
+    }
+
+    .ff-button-ghost {
+        @apply border-transparent bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900;
+    }
+
+    .ff-button-sm {
+        @apply px-3 py-1.5 text-xs;
+    }
+
+    .ff-button-lg {
+        @apply px-5 py-3 text-base;
+    }
+
+    .ff-form-label {
+        @apply block text-sm font-medium text-slate-700;
+    }
+
+    .ff-form-input {
+        @apply mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-cyan-600 focus:ring-cyan-600;
+    }
+
+    .ff-form-help {
+        @apply mt-1 text-sm text-slate-500;
+    }
+
+    .ff-alert-success {
+        @apply rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800;
+    }
+
+    .ff-alert-danger {
+        @apply rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800;
+    }
+
+    .ff-badge {
+        @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold;
+    }
+
+    .ff-badge-muted {
+        @apply border-slate-200 bg-slate-100 text-slate-700;
+    }
+
+    .ff-badge-primary {
+        @apply border-cyan-200 bg-cyan-50 text-cyan-800;
+    }
+
+    .ff-badge-success {
+        @apply border-emerald-200 bg-emerald-50 text-emerald-800;
+    }
+
+    .ff-badge-warning {
+        @apply border-amber-200 bg-amber-50 text-amber-800;
+    }
+
+    .ff-badge-danger {
+        @apply border-red-200 bg-red-50 text-red-800;
+    }
+
+    .ff-badge-info {
+        @apply border-blue-200 bg-blue-50 text-blue-800;
+    }
+
+    .ff-table {
+        @apply min-w-full divide-y divide-slate-200 text-sm;
+    }
+
+    .ff-table thead {
+        @apply bg-slate-50 text-slate-600;
+    }
+
+    .ff-table th {
+        @apply px-5 py-3 text-start text-xs font-semibold uppercase tracking-wider;
+    }
+
+    .ff-table tbody {
+        @apply divide-y divide-slate-100 bg-white;
+    }
+
+    .ff-table td {
+        @apply px-5 py-4 align-top text-slate-700;
+    }
+
+    .ff-empty-state {
+        @apply rounded-lg border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center;
+    }
+}

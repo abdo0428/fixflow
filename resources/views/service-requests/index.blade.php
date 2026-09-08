@@ -1,112 +1,88 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between gap-4">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                طلبات الصيانة
-            </h2>
-            @can('create', App\Models\ServiceRequest::class)
-                <a href="{{ route('service-requests.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
-                    طلب جديد
-                </a>
-            @endcan
-        </div>
+        <x-ui.page-header :title="__('ui.service_requests.title')" :subtitle="__('ui.service_requests.subtitle')">
+            <x-slot name="actions">
+                @can('create', App\Models\ServiceRequest::class)
+                    <x-ui.button :href="route('service-requests.create')">{{ __('ui.actions.create_request') }}</x-ui.button>
+                @endcan
+            </x-slot>
+        </x-ui.page-header>
     </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div class="ff-page">
+        <div class="ff-container space-y-6">
             @if (session('status'))
-                <div class="bg-green-50 border border-green-200 text-green-800 rounded-lg px-4 py-3">
-                    {{ session('status') }}
-                </div>
+                <div class="ff-alert-success">{{ session('status') }}</div>
             @endif
 
-            <form method="GET" action="{{ route('service-requests.index') }}" class="bg-white rounded-lg shadow-sm p-5">
-                <div class="grid gap-4 md:grid-cols-4">
-                    <div>
-                        <label for="status" class="block text-sm font-medium text-gray-700">الحالة</label>
-                        <select id="status" name="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <option value="">كل الحالات</option>
-                            @foreach ($statuses as $status)
-                                <option value="{{ $status }}" @selected($filters['status'] === $status)>{{ $status }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+            <x-ui.card>
+                <form method="GET" action="{{ route('service-requests.index') }}">
+                    <div class="grid gap-4 md:grid-cols-4">
+                        <div>
+                            <label for="status" class="ff-form-label">{{ __('ui.service_requests.status_filter') }}</label>
+                            <select id="status" name="status" class="ff-form-input">
+                                <option value="">{{ __('ui.service_requests.all_statuses') }}</option>
+                                @foreach ($statuses as $status)
+                                    <option value="{{ $status }}" @selected($filters['status'] === $status)>{{ __('ui.statuses.'.$status) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <div>
-                        <label for="priority" class="block text-sm font-medium text-gray-700">الأولوية</label>
-                        <select id="priority" name="priority" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <option value="">كل الأولويات</option>
-                            @foreach ($priorities as $priority)
-                                <option value="{{ $priority }}" @selected($filters['priority'] === $priority)>{{ $priority }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                        <div>
+                            <label for="priority" class="ff-form-label">{{ __('ui.service_requests.priority_filter') }}</label>
+                            <select id="priority" name="priority" class="ff-form-input">
+                                <option value="">{{ __('ui.service_requests.all_priorities') }}</option>
+                                @foreach ($priorities as $priority)
+                                    <option value="{{ $priority }}" @selected($filters['priority'] === $priority)>{{ __('ui.priorities.'.$priority) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <div>
-                        <label for="technician_id" class="block text-sm font-medium text-gray-700">الفني</label>
-                        <select id="technician_id" name="technician_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <option value="">كل الفنيين</option>
-                            @foreach ($technicians as $technician)
-                                <option value="{{ $technician->id }}" @selected((string) $filters['technician_id'] === (string) $technician->id)>{{ $technician->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                        <div>
+                            <label for="technician_id" class="ff-form-label">{{ __('ui.service_requests.technician_filter') }}</label>
+                            <select id="technician_id" name="technician_id" class="ff-form-input">
+                                <option value="">{{ __('ui.service_requests.all_technicians') }}</option>
+                                @foreach ($technicians as $technician)
+                                    <option value="{{ $technician->id }}" @selected((string) $filters['technician_id'] === (string) $technician->id)>{{ $technician->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <div class="flex items-end gap-2">
-                        <button type="submit" class="inline-flex items-center justify-center px-4 py-2 bg-gray-800 rounded-md text-xs font-semibold uppercase text-white hover:bg-gray-700">
-                            فلترة
-                        </button>
-                        <a href="{{ route('service-requests.index') }}" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md text-xs font-semibold uppercase text-gray-700 hover:bg-gray-50">
-                            مسح
-                        </a>
+                        <div class="flex items-end gap-2">
+                            <x-ui.button type="submit">{{ __('ui.actions.filter') }}</x-ui.button>
+                            <x-ui.button :href="route('service-requests.index')" variant="secondary">{{ __('ui.actions.reset') }}</x-ui.button>
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            </x-ui.card>
 
-            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">الطلب</th>
-                                <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">العميل</th>
-                                <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">الجهاز</th>
-                                <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">الأولوية</th>
-                                <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">الحالة</th>
-                                <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">الفني</th>
-                                <th class="px-5 py-3"></th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 bg-white">
-                            @forelse ($serviceRequests as $serviceRequest)
-                                <tr>
-                                    <td class="px-5 py-4">
-                                        <div class="font-medium text-gray-900">{{ $serviceRequest->title }}</div>
-                                        <div class="text-sm text-gray-500">#{{ $serviceRequest->id }}</div>
-                                    </td>
-                                    <td class="px-5 py-4 text-sm text-gray-700">{{ $serviceRequest->customer?->name }}</td>
-                                    <td class="px-5 py-4 text-sm text-gray-700">{{ $serviceRequest->serviceAsset?->name ?? 'طلب عام' }}</td>
-                                    <td class="px-5 py-4 text-sm text-gray-700">{{ $serviceRequest->priority }}</td>
-                                    <td class="px-5 py-4 text-sm text-gray-700">{{ $serviceRequest->status }}</td>
-                                    <td class="px-5 py-4 text-sm text-gray-700">
-                                        {{ $serviceRequest->visits->pluck('technician.name')->filter()->unique()->join(', ') ?: 'غير معين' }}
-                                    </td>
-                                    <td class="px-5 py-4 text-right">
-                                        <a href="{{ route('service-requests.show', $serviceRequest) }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-900">عرض</a>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="px-5 py-8 text-center text-gray-500">لا توجد طلبات مطابقة.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-                <div class="px-5 py-4 border-t border-gray-100">
-                    {{ $serviceRequests->links() }}
-                </div>
-            </div>
+            <x-ui.table
+                :columns="[__('ui.service_requests.title_field'), __('ui.service_requests.customer'), __('ui.service_requests.asset'), __('ui.service_requests.priority'), __('ui.service_requests.status'), __('ui.service_requests.technician'), '']"
+                :footer="$serviceRequests->links()"
+            >
+                @forelse ($serviceRequests as $serviceRequest)
+                    <tr>
+                        <td>
+                            <div class="font-medium text-slate-950">{{ $serviceRequest->title }}</div>
+                            <div class="text-xs text-slate-500">#{{ $serviceRequest->id }}</div>
+                        </td>
+                        <td>{{ $serviceRequest->customer?->name }}</td>
+                        <td>{{ $serviceRequest->serviceAsset?->name ?? __('ui.common.general_request') }}</td>
+                        <td><x-ui.badge :status="$serviceRequest->priority" /></td>
+                        <td><x-ui.badge :status="$serviceRequest->status" /></td>
+                        <td>{{ $serviceRequest->visits->pluck('technician.name')->filter()->unique()->join(', ') ?: __('ui.common.not_defined') }}</td>
+                        <td class="text-end">
+                            <a href="{{ route('service-requests.show', $serviceRequest) }}" class="font-medium text-cyan-700 hover:text-cyan-900">{{ __('ui.actions.view') }}</a>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7">
+                            <x-ui.empty-state :title="__('ui.service_requests.no_matching_requests')" />
+                        </td>
+                    </tr>
+                @endforelse
+            </x-ui.table>
         </div>
     </div>
 </x-app-layout>

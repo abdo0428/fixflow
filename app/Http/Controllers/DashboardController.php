@@ -48,8 +48,8 @@ class DashboardController extends Controller
 
         return view('company.dashboard', [
             'company' => $company,
-            'title' => 'لوحة الشركة',
-            'subtitle' => 'مؤشرات تشغيلية مختصرة لفريق الإدارة.',
+            'title' => __('ui.dashboards.company_title'),
+            'subtitle' => __('ui.dashboards.company_subtitle'),
             ...$this->dashboards->companyDashboard($company, $request->user()),
         ]);
     }
@@ -64,8 +64,8 @@ class DashboardController extends Controller
 
         return view('company.dashboard', [
             'company' => $company,
-            'title' => 'لوحة التوزيع',
-            'subtitle' => 'مؤشرات تساعد فريق الجدولة على متابعة الضغط اليومي والأولويات.',
+            'title' => __('ui.dashboards.dispatch_title'),
+            'subtitle' => __('ui.dashboards.dispatch_subtitle'),
             ...$this->dashboards->companyDashboard($company, $request->user()),
         ]);
     }

@@ -47,31 +47,51 @@ class DashboardService
     /**
      * @return array<string, mixed>
      */
-    public function platformDashboard(): array
-    {
-        return Cache::remember(
-            'dashboard:platform',
-            self::CACHE_TTL_SECONDS,
-            fn (): array => [
-                'stats' => [
-                    'companies' => Company::count(),
-                    'activeCompanies' => Company::where('status', 'active')->count(),
-                    'users' => User::count(),
-                    'serviceRequests' => ServiceRequest::withoutGlobalScope('company')->count(),
-                    'openRequests' => ServiceRequest::withoutGlobalScope('company')->whereIn('status', self::OPEN_STATUSES)->count(),
-                ],
-                'companies' => Company::latest()->limit(6)->get(),
-                'requestsByStatus' => $this->fillCounts(
-                    ServiceRequest::withoutGlobalScope('company')
-                        ->selectRaw('status, count(*) as aggregate')
-                        ->groupBy('status')
-                        ->pluck('aggregate', 'status'),
-                    ServiceRequest::STATUSES,
-                ),
-            ],
-        );
-    }
+public function platformDashboard(): array
+{
+    $dashboard = Cache::remember(
+        'dashboard:platform',
+        self::CACHE_TTL_SECONDS,
+        fn (): array => [
+            'stats' => [
+                'companies' => Company::count(),
 
+                'activeCompanies' => Company::where(
+                    'status',
+                    'active'
+                )->count(),
+
+                'users' => User::count(),
+
+                'serviceRequests' => ServiceRequest::withoutGlobalScope('company')
+                    ->count(),
+
+                'openRequests' => ServiceRequest::withoutGlobalScope('company')
+                    ->whereIn('status', self::OPEN_STATUSES)
+                    ->count(),
+            ],
+
+            'requestsByStatus' => ServiceRequest::withoutGlobalScope('company')
+                ->selectRaw('status, COUNT(*) as total')
+                ->groupBy('status')
+                ->pluck('total', 'status')
+                ->all(),
+        ],
+    );
+
+    return [
+        'stats' => $dashboard['stats'],
+
+        'requestsByStatus' => collect(
+            $dashboard['requestsByStatus'] ?? []
+        ),
+
+        'companies' => Company::query()
+            ->latest()
+            ->limit(6)
+            ->get(),
+    ];
+}
     /**
      * @return array<string, mixed>
      */
@@ -196,27 +216,27 @@ class DashboardService
     {
         return [
             [
-                'label' => 'إنشاء طلب جديد',
+                'label' => __('ui.dashboards.quick_create_request'),
                 'url' => route('service-requests.create'),
                 'enabled' => $user->can('create', ServiceRequest::class),
             ],
             [
-                'label' => 'إضافة عميل',
+                'label' => __('ui.dashboards.quick_add_customer'),
                 'url' => route('company.customers.create'),
                 'enabled' => $user->can('create', Customer::class),
             ],
             [
-                'label' => 'إضافة جهاز',
+                'label' => __('ui.dashboards.quick_add_asset'),
                 'url' => route('company.assets.create'),
                 'enabled' => $user->can('create', ServiceAsset::class),
             ],
             [
-                'label' => 'جدولة زيارة',
+                'label' => __('ui.dashboards.quick_schedule_visit'),
                 'url' => route('service-requests.index', ['status' => 'under_review']),
                 'enabled' => $user->can('viewAny', ServiceRequest::class),
             ],
             [
-                'label' => 'عرض الفواتير',
+                'label' => __('ui.dashboards.quick_view_invoices'),
                 'url' => route('invoices.index'),
                 'enabled' => $user->can('viewAny', Invoice::class),
             ],

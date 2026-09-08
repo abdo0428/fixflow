@@ -1,195 +1,174 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between" dir="rtl">
-            <div>
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ $title }} - {{ $company->name }}</h2>
-                <p class="mt-1 text-sm text-gray-500">{{ $subtitle }}</p>
-            </div>
-            <a href="{{ route('service-requests.index') }}" class="inline-flex items-center rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700">
-                عرض الطلبات
-            </a>
-        </div>
+        <x-ui.page-header :title="$title.' - '.$company->name" :subtitle="$subtitle">
+            <x-slot name="actions">
+                <x-ui.button :href="route('service-requests.index')" variant="secondary">{{ __('ui.nav.service_requests') }}</x-ui.button>
+            </x-slot>
+        </x-ui.page-header>
     </x-slot>
 
-    <div class="py-8" dir="rtl">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div class="ff-page">
+        <div class="ff-container space-y-6">
             @if (session('status'))
-                <div class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-800">
-                    {{ session('status') }}
-                </div>
+                <div class="ff-alert-success">{{ session('status') }}</div>
             @endif
 
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-                <div class="bg-white rounded-lg shadow-sm p-5">
-                    <div class="text-sm text-gray-500">طلبات اليوم</div>
-                    <div class="mt-2 text-3xl font-semibold text-gray-900">{{ number_format($stats['requestsToday']) }}</div>
-                </div>
-                <div class="bg-white rounded-lg shadow-sm p-5">
-                    <div class="text-sm text-gray-500">الطلبات المفتوحة</div>
-                    <div class="mt-2 text-3xl font-semibold text-gray-900">{{ number_format($stats['openRequests']) }}</div>
-                </div>
-                <div class="bg-white rounded-lg shadow-sm p-5">
-                    <div class="text-sm text-gray-500">مكتملة هذا الشهر</div>
-                    <div class="mt-2 text-3xl font-semibold text-gray-900">{{ number_format($stats['completedThisMonth']) }}</div>
-                </div>
-                <div class="bg-white rounded-lg shadow-sm p-5">
-                    <div class="text-sm text-gray-500">طلبات متأخرة</div>
-                    <div class="mt-2 text-3xl font-semibold text-gray-900">{{ number_format($stats['overdueRequests']) }}</div>
-                </div>
-                <div class="bg-white rounded-lg shadow-sm p-5">
-                    <div class="text-sm text-gray-500">فنيون نشطون</div>
-                    <div class="mt-2 text-3xl font-semibold text-gray-900">{{ number_format($stats['activeTechnicians']) }}</div>
-                </div>
+                <x-ui.stat-card :title="__('ui.dashboards.requests_today')" :value="number_format($stats['requestsToday'])" />
+                <x-ui.stat-card :title="__('ui.dashboards.open_requests')" :value="number_format($stats['openRequests'])" tone="info" />
+                <x-ui.stat-card :title="__('ui.dashboards.completed_this_month')" :value="number_format($stats['completedThisMonth'])" tone="success" />
+                <x-ui.stat-card :title="__('ui.dashboards.overdue_requests')" :value="number_format($stats['overdueRequests'])" tone="danger" />
+                <x-ui.stat-card :title="__('ui.dashboards.active_technicians')" :value="number_format($stats['activeTechnicians'])" tone="warning" />
             </div>
 
-            <div class="bg-white rounded-lg shadow-sm p-5">
-                <div class="font-semibold text-gray-900">روابط سريعة</div>
-                <div class="mt-4 flex flex-wrap gap-3">
+            <x-ui.card :title="__('ui.dashboards.quick_links')">
+                <div class="flex flex-wrap gap-3">
                     @foreach ($quickLinks as $link)
                         @if ($link['enabled'])
-                            <a href="{{ $link['url'] }}" class="inline-flex items-center rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">
-                                {{ $link['label'] }}
-                            </a>
+                            <x-ui.button :href="$link['url']" variant="secondary" size="sm">{{ $link['label'] }}</x-ui.button>
                         @else
-                            <span class="inline-flex items-center rounded-md border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-400">
+                            <span class="ff-button ff-button-sm cursor-not-allowed border-slate-200 bg-slate-50 text-slate-400">
                                 {{ $link['label'] }}
                             </span>
                         @endif
                     @endforeach
                 </div>
-            </div>
+            </x-ui.card>
 
             <div class="grid gap-6 xl:grid-cols-2">
-                <div class="bg-white rounded-lg shadow-sm p-5">
-                    <div class="font-semibold text-gray-900">عدد الطلبات حسب الحالة</div>
-                    <div class="mt-5 space-y-3">
+                <x-ui.card :title="__('ui.dashboards.requests_by_status')">
+                    <div class="space-y-3">
                         @php($statusMax = max(1, $requestsByStatus->max()))
                         @foreach ($requestsByStatus as $status => $count)
                             <div>
-                                <div class="mb-1 flex items-center justify-between text-sm">
-                                    <span class="font-medium text-gray-700">{{ $status }}</span>
-                                    <span class="text-gray-500">{{ number_format($count) }}</span>
+                                <div class="mb-1 flex items-center justify-between gap-4 text-sm">
+                                    <x-ui.badge :status="$status" />
+                                    <span class="font-medium text-slate-600">{{ number_format($count) }}</span>
                                 </div>
-                                <div class="h-2 rounded-full bg-gray-100">
-                                    <div class="h-2 rounded-full bg-indigo-600" style="width: {{ ($count / $statusMax) * 100 }}%"></div>
+                                <div class="h-2 rounded-full bg-slate-100">
+                                    <div class="h-2 rounded-full bg-cyan-700" style="width: {{ ($count / $statusMax) * 100 }}%"></div>
                                 </div>
                             </div>
                         @endforeach
                     </div>
-                </div>
+                </x-ui.card>
 
-                <div class="bg-white rounded-lg shadow-sm p-5">
-                    <div class="font-semibold text-gray-900">عدد الطلبات حسب الأولوية</div>
-                    <div class="mt-5 space-y-3">
+                <x-ui.card :title="__('ui.dashboards.requests_by_priority')">
+                    <div class="space-y-3">
                         @php($priorityMax = max(1, $requestsByPriority->max()))
                         @foreach ($requestsByPriority as $priority => $count)
                             <div>
-                                <div class="mb-1 flex items-center justify-between text-sm">
-                                    <span class="font-medium text-gray-700">{{ $priority }}</span>
-                                    <span class="text-gray-500">{{ number_format($count) }}</span>
+                                <div class="mb-1 flex items-center justify-between gap-4 text-sm">
+                                    <x-ui.badge :status="$priority" />
+                                    <span class="font-medium text-slate-600">{{ number_format($count) }}</span>
                                 </div>
-                                <div class="h-2 rounded-full bg-gray-100">
+                                <div class="h-2 rounded-full bg-slate-100">
                                     <div class="h-2 rounded-full bg-emerald-600" style="width: {{ ($count / $priorityMax) * 100 }}%"></div>
                                 </div>
                             </div>
                         @endforeach
                     </div>
-                </div>
+                </x-ui.card>
             </div>
 
             <div class="grid gap-6 xl:grid-cols-3">
-                <div class="bg-white rounded-lg shadow-sm">
-                    <div class="px-5 py-4 border-b border-gray-100 font-semibold text-gray-900">أكثر أنواع الأجهزة طلبًا</div>
-                    <div class="divide-y divide-gray-100">
+                <x-ui.card :title="__('ui.dashboards.top_asset_types')" padding="p-0">
+                    <div class="divide-y divide-slate-100">
                         @forelse ($topAssetTypes as $assetType)
-                            <div class="px-5 py-4 flex items-center justify-between gap-4">
-                                <div class="font-medium text-gray-900">{{ $assetType->type }}</div>
-                                <div class="text-sm text-gray-600">{{ number_format($assetType->total) }} طلب</div>
+                            <div class="flex items-center justify-between gap-4 px-5 py-4">
+                                <div class="font-medium text-slate-950">{{ $assetType->type }}</div>
+                                <x-ui.badge variant="info">{{ __('ui.dashboards.request_count', ['count' => number_format($assetType->total)]) }}</x-ui.badge>
                             </div>
                         @empty
-                            <div class="px-5 py-10 text-center text-gray-500">لا توجد طلبات مرتبطة بأجهزة بعد.</div>
+                            <div class="p-5">
+                                <x-ui.empty-state :title="__('ui.dashboards.no_asset_type_requests')" />
+                            </div>
                         @endforelse
                     </div>
-                </div>
+                </x-ui.card>
 
-                <div class="bg-white rounded-lg shadow-sm">
-                    <div class="px-5 py-4 border-b border-gray-100 font-semibold text-gray-900">أكثر الفنيين إنجازًا</div>
-                    <div class="divide-y divide-gray-100">
+                <x-ui.card :title="__('ui.dashboards.top_technicians')" padding="p-0">
+                    <div class="divide-y divide-slate-100">
                         @forelse ($topTechnicians as $technician)
-                            <div class="px-5 py-4 flex items-center justify-between gap-4">
-                                <div class="font-medium text-gray-900">{{ $technician->name }}</div>
-                                <div class="text-sm text-gray-600">{{ number_format($technician->completed_requests) }} طلب مكتمل</div>
+                            <div class="flex items-center justify-between gap-4 px-5 py-4">
+                                <div class="font-medium text-slate-950">{{ $technician->name }}</div>
+                                <x-ui.badge variant="success">{{ __('ui.dashboards.completed_count', ['count' => number_format($technician->completed_requests)]) }}</x-ui.badge>
                             </div>
                         @empty
-                            <div class="px-5 py-10 text-center text-gray-500">لا توجد طلبات مكتملة مرتبطة بفنيين بعد.</div>
+                            <div class="p-5">
+                                <x-ui.empty-state :title="__('ui.dashboards.no_completed_technicians')" />
+                            </div>
                         @endforelse
                     </div>
-                </div>
+                </x-ui.card>
 
-                <div class="bg-white rounded-lg shadow-sm">
-                    <div class="px-5 py-4 border-b border-gray-100 font-semibold text-gray-900">قطع منخفضة المخزون</div>
-                    <div class="divide-y divide-gray-100">
+                <x-ui.card :title="__('ui.dashboards.low_stock_parts')" padding="p-0">
+                    <div class="divide-y divide-slate-100">
                         @forelse ($lowStockParts as $part)
                             <div class="px-5 py-4">
                                 <div class="flex items-center justify-between gap-4">
-                                    <div class="font-medium text-gray-900">{{ $part->name }}</div>
-                                    <div class="text-sm text-red-700">{{ number_format($part->quantity) }} متبقي</div>
+                                    <div class="font-medium text-slate-950">{{ $part->name }}</div>
+                                    <x-ui.badge variant="danger">{{ __('ui.dashboards.remaining_count', ['count' => number_format($part->quantity)]) }}</x-ui.badge>
                                 </div>
-                                <div class="mt-1 text-sm text-gray-500">{{ $part->sku }} - حد التنبيه {{ number_format($part->low_stock_threshold) }}</div>
+                                <div class="mt-1 text-sm text-slate-500">{{ $part->sku }} - {{ __('ui.dashboards.stock_alert_limit', ['count' => number_format($part->low_stock_threshold)]) }}</div>
                             </div>
                         @empty
-                            <div class="px-5 py-10 text-center text-gray-500">لا توجد قطع منخفضة المخزون حاليًا.</div>
+                            <div class="p-5">
+                                <x-ui.empty-state :title="__('ui.dashboards.no_low_stock_parts')" />
+                            </div>
                         @endforelse
                     </div>
-                </div>
+                </x-ui.card>
             </div>
 
             <div class="grid gap-6 xl:grid-cols-2">
-                <div class="bg-white rounded-lg shadow-sm">
-                    <div class="px-5 py-4 border-b border-gray-100 font-semibold text-gray-900">أحدث طلبات الصيانة</div>
-                    <div class="divide-y divide-gray-100">
-                        @forelse ($recentRequests as $serviceRequest)
-                            <div class="px-5 py-4">
-                                <div class="flex items-center justify-between gap-4">
-                                    <a href="{{ route('service-requests.show', $serviceRequest) }}" class="font-medium text-gray-900 hover:text-indigo-700">
-                                        {{ $serviceRequest->title }}
-                                    </a>
-                                    <span class="text-sm text-gray-600">{{ $serviceRequest->status }}</span>
-                                </div>
-                                <div class="mt-1 text-sm text-gray-500">
-                                    {{ $serviceRequest->customer?->name }} - {{ $serviceRequest->serviceAsset?->name ?? 'طلب عام' }}
-                                </div>
-                            </div>
-                        @empty
-                            <div class="px-5 py-10 text-center text-gray-500">لا توجد طلبات صيانة بعد.</div>
-                        @endforelse
-                    </div>
-                </div>
+                <x-ui.table :title="__('ui.dashboards.latest_requests')" :columns="[__('ui.service_requests.title_field'), __('ui.service_requests.customer'), __('ui.service_requests.asset'), __('ui.service_requests.status'), '']">
+                    @forelse ($recentRequests as $serviceRequest)
+                        <tr>
+                            <td>
+                                <div class="font-medium text-slate-950">{{ $serviceRequest->title }}</div>
+                                <div class="text-xs text-slate-500">#{{ $serviceRequest->id }}</div>
+                            </td>
+                            <td>{{ $serviceRequest->customer?->name }}</td>
+                            <td>{{ $serviceRequest->serviceAsset?->name ?? __('ui.common.general_request') }}</td>
+                            <td><x-ui.badge :status="$serviceRequest->status" /></td>
+                            <td class="text-end">
+                                <a href="{{ route('service-requests.show', $serviceRequest) }}" class="font-medium text-cyan-700 hover:text-cyan-900">{{ __('ui.actions.view') }}</a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5">
+                                <x-ui.empty-state :title="__('ui.dashboards.no_service_requests')" />
+                            </td>
+                        </tr>
+                    @endforelse
+                </x-ui.table>
 
-                <div class="bg-white rounded-lg shadow-sm">
-                    <div class="px-5 py-4 border-b border-gray-100 font-semibold text-gray-900">طلبات تحتاج متابعة</div>
-                    <div class="divide-y divide-gray-100">
-                        @forelse ($overdueRequests as $serviceRequest)
-                            <div class="px-5 py-4">
-                                <div class="flex items-center justify-between gap-4">
-                                    <a href="{{ route('service-requests.show', $serviceRequest) }}" class="font-medium text-gray-900 hover:text-indigo-700">
-                                        {{ $serviceRequest->title }}
-                                    </a>
-                                    <span class="text-sm text-red-700">{{ optional($serviceRequest->preferred_date)->format('Y-m-d') }}</span>
-                                </div>
-                                <div class="mt-1 text-sm text-gray-500">
-                                    {{ $serviceRequest->customer?->name }} - {{ $serviceRequest->status }}
-                                </div>
-                            </div>
-                        @empty
-                            <div class="px-5 py-10 text-center text-gray-500">لا توجد طلبات متأخرة حاليًا.</div>
-                        @endforelse
-                    </div>
-                </div>
+                <x-ui.table :title="__('ui.dashboards.requests_need_attention')" :columns="[__('ui.service_requests.title_field'), __('ui.service_requests.customer'), __('ui.service_requests.preferred_date'), __('ui.service_requests.status')]">
+                    @forelse ($overdueRequests as $serviceRequest)
+                        <tr>
+                            <td>
+                                <a href="{{ route('service-requests.show', $serviceRequest) }}" class="font-medium text-slate-950 hover:text-cyan-800">
+                                    {{ $serviceRequest->title }}
+                                </a>
+                            </td>
+                            <td>{{ $serviceRequest->customer?->name }}</td>
+                            <td class="text-red-700">{{ optional($serviceRequest->preferred_date)->format('Y-m-d') }}</td>
+                            <td><x-ui.badge :status="$serviceRequest->status" /></td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4">
+                                <x-ui.empty-state :title="__('ui.dashboards.no_overdue_requests')" />
+                            </td>
+                        </tr>
+                    @endforelse
+                </x-ui.table>
             </div>
 
-            <div class="text-xs text-gray-400">
-                يتم تخزين هذه المؤشرات مؤقتًا لمدة {{ $cacheMinutes }} دقائق.
+            <div class="text-xs text-slate-400">
+                {{ __('ui.dashboards.cache_notice', ['minutes' => $cacheMinutes]) }}
             </div>
         </div>
     </div>

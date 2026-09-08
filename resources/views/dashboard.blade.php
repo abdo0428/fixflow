@@ -1,17 +1,11 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
+        <x-ui.page-header :title="__('Dashboard')" subtitle="تم تسجيل الدخول، لكن هذا الحساب لا يملك لوحة تشغيل مخصصة بعد." dir="rtl" />
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    تم تسجيل الدخول بنجاح. لم يتم تعيين دور تشغيلي لهذا الحساب بعد.
-                </div>
-            </div>
+    <div class="ff-page" dir="rtl">
+        <div class="ff-container">
+            <x-ui.empty-state title="تم تسجيل الدخول بنجاح." message="لم يتم تعيين دور تشغيلي لهذا الحساب بعد." />
         </div>
     </div>
 </x-app-layout>

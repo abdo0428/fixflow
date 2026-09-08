@@ -1,75 +1,60 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            زياراتي
-        </h2>
+        <x-ui.page-header :title="__('ui.visits.title')" :subtitle="__('ui.visits.subtitle')" />
     </x-slot>
 
-    <div class="py-8" dir="rtl">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-            <form method="GET" action="{{ route('technician.visits.index') }}" class="bg-white rounded-lg shadow-sm p-4">
-                <div class="grid gap-4 md:grid-cols-3">
-                    <div>
-                        <label for="status" class="block text-sm font-medium text-gray-700">الحالة</label>
-                        <select id="status" name="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <option value="">كل الحالات</option>
-                            @foreach ($visitStatuses as $status)
-                                <option value="{{ $status }}" @selected(($filters['status'] ?? '') === $status)>
-                                    {{ $visitLabels[$status] ?? $status }}
-                                </option>
-                            @endforeach
-                        </select>
+    <div class="ff-page">
+        <div class="ff-container space-y-6">
+            <x-ui.card>
+                <form method="GET" action="{{ route('technician.visits.index') }}">
+                    <div class="grid gap-4 md:grid-cols-3">
+                        <div>
+                            <label for="status" class="ff-form-label">{{ __('ui.service_requests.status_filter') }}</label>
+                            <select id="status" name="status" class="ff-form-input">
+                                <option value="">{{ __('ui.service_requests.all_statuses') }}</option>
+                                @foreach ($visitStatuses as $status)
+                                    <option value="{{ $status }}" @selected(($filters['status'] ?? '') === $status)>
+                                        {{ __('ui.statuses.'.$status) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label for="date" class="ff-form-label">{{ __('ui.service_requests.preferred_date') }}</label>
+                            <x-ui.input id="date" name="date" type="date" :value="$filters['date'] ?? ''" />
+                        </div>
+                        <div class="flex items-end gap-2">
+                            <x-ui.button type="submit">{{ __('ui.actions.filter') }}</x-ui.button>
+                            <x-ui.button :href="route('technician.visits.index')" variant="secondary">{{ __('ui.actions.reset') }}</x-ui.button>
+                        </div>
                     </div>
-                    <div>
-                        <label for="date" class="block text-sm font-medium text-gray-700">التاريخ</label>
-                        <input id="date" name="date" type="date" value="{{ $filters['date'] ?? '' }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                    </div>
-                    <div class="flex items-end gap-2">
-                        <button type="submit" class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700">تطبيق الفلتر</button>
-                        <a href="{{ route('technician.visits.index') }}" class="inline-flex items-center rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">إعادة ضبط</a>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </x-ui.card>
 
-            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-                <div class="px-5 py-4 border-b border-gray-100 font-semibold text-gray-900">الزيارات المسندة لي</div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead class="bg-gray-50 text-gray-600">
-                            <tr>
-                                <th class="px-5 py-3 text-right font-medium">الطلب</th>
-                                <th class="px-5 py-3 text-right font-medium">العميل</th>
-                                <th class="px-5 py-3 text-right font-medium">الجهاز</th>
-                                <th class="px-5 py-3 text-right font-medium">الموعد</th>
-                                <th class="px-5 py-3 text-right font-medium">الحالة</th>
-                                <th class="px-5 py-3 text-right font-medium"></th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 bg-white">
-                            @forelse ($visits as $visit)
-                                <tr>
-                                    <td class="px-5 py-4 font-medium text-gray-900">{{ $visit->serviceRequest?->title }}</td>
-                                    <td class="px-5 py-4 text-gray-600">{{ $visit->serviceRequest?->customer?->name }}</td>
-                                    <td class="px-5 py-4 text-gray-600">{{ $visit->serviceRequest?->serviceAsset?->name ?? 'غير محدد' }}</td>
-                                    <td class="px-5 py-4 text-gray-600">{{ optional($visit->scheduled_at)->format('Y-m-d H:i') }}</td>
-                                    <td class="px-5 py-4 text-gray-600">{{ $visitLabels[$visit->visit_status] ?? $visit->visit_status }}</td>
-                                    <td class="px-5 py-4">
-                                        <a href="{{ route('technician.visits.show', $visit) }}" class="font-medium text-indigo-700 hover:text-indigo-900">التفاصيل</a>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="px-5 py-10 text-center text-gray-500">لا توجد زيارات مطابقة للفلتر الحالي.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-                <div class="px-5 py-4">
-                    {{ $visits->links() }}
-                </div>
-            </div>
+            <x-ui.table
+                :title="__('ui.visits.assigned_to_me')"
+                :columns="[__('ui.service_requests.title_field'), __('ui.visits.customer'), __('ui.visits.asset'), __('ui.visits.scheduled_at'), __('ui.visits.visit_status'), '']"
+                :footer="$visits->links()"
+            >
+                @forelse ($visits as $visit)
+                    <tr>
+                        <td class="font-medium text-slate-950">{{ $visit->serviceRequest?->title }}</td>
+                        <td>{{ $visit->serviceRequest?->customer?->name }}</td>
+                        <td>{{ $visit->serviceRequest?->serviceAsset?->name ?? __('ui.common.not_defined') }}</td>
+                        <td>{{ optional($visit->scheduled_at)->format('Y-m-d H:i') }}</td>
+                        <td><x-ui.badge :status="$visit->visit_status" /></td>
+                        <td class="text-end">
+                            <a href="{{ route('technician.visits.show', $visit) }}" class="font-medium text-cyan-700 hover:text-cyan-900">{{ __('ui.actions.details') }}</a>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6">
+                            <x-ui.empty-state :title="__('ui.visits.no_matching_visits')" />
+                        </td>
+                    </tr>
+                @endforelse
+            </x-ui.table>
         </div>
     </div>
 </x-app-layout>
-

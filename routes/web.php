@@ -5,6 +5,7 @@ use App\Http\Controllers\CompanyCustomerController;
 use App\Http\Controllers\CustomerPortalController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceAssetQrController;
 use App\Http\Controllers\ServiceReportPdfController;
@@ -21,6 +22,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::post('/locale', [LocaleController::class, 'update'])
+    ->name('locale.update');
 
 Route::get('/assets/qr/{qrCode}', [ServiceAssetQrController::class, 'show'])
     ->name('assets.qr.show');
